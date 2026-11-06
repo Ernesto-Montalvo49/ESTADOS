@@ -15,6 +15,7 @@ fun CuentaScreen(modifier: Modifier = Modifier) {
     var montoTexto by remember { mutableStateOf("") }
     var propinaPct by remember { mutableStateOf(20) }
     var usaOtro by remember { mutableStateOf(false) }
+    var sliderVal by remember { mutableStateOf(20f) }
     var personas by remember { mutableStateOf(5) }
     var redondear by remember { mutableStateOf(false) }
 
@@ -55,17 +56,73 @@ fun CuentaScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        SelectorPropina(
-            porcentaje = propinaPct,
-            usaOtro = usaOtro,
-            onPorcentajeChange = { propinaPct = it },
-            onOtroChange = { usaOtro = it }
-        )
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(text = "Propina", style = MaterialTheme.typography.bodyLarge)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                listOf(10, 15, 20).forEach { pct ->
+                    FilterChip(
+                        selected = !usaOtro && propinaPct == pct,
+                        onClick = {
+                            usaOtro = false
+                            propinaPct = pct
+                        },
+                        label = { Text("$pct %") }
+                    )
+                }
+                FilterChip(
+                    selected = usaOtro,
+                    onClick = { usaOtro = true },
+                    label = { Text("Otro") }
+                )
+            }
 
-        StepperPersonas(
-            personas = personas,
-            onChange = { personas = it }
-        )
+            if (usaOtro) {
+                Column {
+                    Text(text = "Personalizada: ${sliderVal.toInt()}%", style = MaterialTheme.typography.bodySmall)
+                    Slider(
+                        value = sliderVal,
+                        onValueChange = {
+                            sliderVal = it
+                            propinaPct = it.toInt()
+                        },
+                        valueRange = 0f..30f
+                    )
+                }
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Personas", style = MaterialTheme.typography.bodyLarge)
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                OutlinedButton(
+                    onClick = { if (personas > 1) personas-- },
+                    modifier = Modifier.size(36.dp),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text("–")
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(text = "$personas", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.width(16.dp))
+
+                OutlinedButton(
+                    onClick = { if (personas < 20) personas++ },
+                    modifier = Modifier.size(36.dp),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text("+")
+                }
+            }
+        }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -81,145 +138,46 @@ fun CuentaScreen(modifier: Modifier = Modifier) {
 
         Divider()
 
-        ResultadoCuenta(
-            propina = propina,
-            total = totalConPropina,
-            porPersona = porPersona,
-            sobrante = sobrante,
-            personas = personas,
-            porcentajeUsado = propinaPct
-        )
-    }
-}
-
-@Composable
-fun SelectorPropina(
-    porcentaje: Int,
-    usaOtro: Boolean,
-    onPorcentajeChange: (Int) -> Unit,
-    onOtroChange: (Boolean) -> Unit
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(text = "Propina", style = MaterialTheme.typography.bodyLarge)
-        Row(
+        Card(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
         ) {
-            listOf(10, 15, 20).forEach { pct ->
-                FilterChip(
-                    selected = !usaOtro && porcentaje == pct,
-                    onClick = {
-                        onOtroChange(false)
-                        onPorcentajeChange(pct)
-                    },
-                    label = { Text("$pct %") }
-                )
-            }
-            FilterChip(
-                selected = usaOtro,
-                onClick = { onOtroChange(true) },
-                label = { Text("Otro") }
-            )
-        }
-
-        if (usaOtro) {
-            var sliderVal by remember { mutableStateOf(porcentaje.toFloat()) }
-            Column {
-                Text(text = "Personalizada: ${sliderVal.toInt()}%", style = MaterialTheme.typography.bodySmall)
-                Slider(
-                    value = sliderVal,
-                    onValueChange = {
-                        sliderVal = it
-                        onPorcentajeChange(it.toInt())
-                    },
-                    valueRange = 0f..30f
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun StepperPersonas(personas: Int, onChange: (Int) -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(text = "Personas", style = MaterialTheme.typography.bodyLarge)
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            OutlinedButton(
-                onClick = { if (personas > 1) onChange(personas - 1) },
-                modifier = Modifier.size(36.dp),
-                contentPadding = PaddingValues(0.dp)
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("–")
-            }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Propina ($propinaPct %)")
+                    Text(text = "$${String.format("%.2f", propina)}")
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Total con propina")
+                    Text(text = "$${String.format("%.2f", totalConPropina)}")
+                }
 
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(text = "$personas", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.width(16.dp))
+                Divider(modifier = Modifier.padding(vertical = 4.dp))
 
-            OutlinedButton(
-                onClick = { if (personas < 20) onChange(personas + 1) },
-                modifier = Modifier.size(36.dp),
-                contentPadding = PaddingValues(0.dp)
-            ) {
-                Text("+")
-            }
-        }
-    }
-}
-
-@Composable
-fun ResultadoCuenta(
-    propina: Double,
-    total: Double,
-    porPersona: Double,
-    sobrante: Double?,
-    personas: Int,
-    porcentajeUsado: Int
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = "Propina ($porcentajeUsado %)")
-                Text(text = "$${String.format("%.2f", propina)}")
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = "Total con propina")
-                Text(text = "$${String.format("%.2f", total)}")
-            }
-
-            Divider(modifier = Modifier.padding(vertical = 4.dp))
-
-            Text(text = "Cada quien paga", style = MaterialTheme.typography.bodyMedium)
-            Text(
-                text = "$${String.format("%.2f", porPersona)}",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(text = "entre $personas personas", style = MaterialTheme.typography.bodySmall)
-
-            if (sobrante != null) {
+                Text(text = "Cada quien paga", style = MaterialTheme.typography.bodyMedium)
                 Text(
-                    text = "Sobrante por redondeo: $${String.format("%.2f", sobrante)}",
-                    style = MaterialTheme.typography.bodySmall
+                    text = "$${String.format("%.2f", porPersona)}",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.primary
                 )
+                Text(text = "entre $personas personas", style = MaterialTheme.typography.bodySmall)
+
+                if (sobrante != null) {
+                    Text(
+                        text = "Sobrante por redondeo: $${String.format("%.2f", sobrante)}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
         }
     }
