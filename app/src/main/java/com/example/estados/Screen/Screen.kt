@@ -1,119 +1,96 @@
 package com.example.estados.Screen
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.estados.R
+import com.example.estados.ui.theme.ESTADOSTheme
 
 @Composable
-fun CalculadoraScreen(modifier: Modifier) {
+fun ColorCard(texto: String) {
 
-    var x by rememberSaveable { mutableStateOf("") }
-    var y by rememberSaveable { mutableStateOf("") }
-    var ans by rememberSaveable { mutableStateOf(0) }
+    val colorResId = when (texto.trim().lowercase()) {
+        "Violeta", "purple200" -> R.color.purple_200
+        "Morado", "purple500" -> R.color.purple_500
+        "Azul", "purple700" -> R.color.purple_700
+        "Celeste", "teal200" -> R.color.teal_200
+        "Verde", "teal700" -> R.color.teal_700
+        else -> android.R.color.darker_gray
+    }
 
-    LazyColumn(modifier = modifier.fillMaxWidth().padding(16.dp)) {
-        item {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+    val colorTarjeta = colorResource(id = colorResId)
 
-                Spacer(modifier = Modifier.padding(10.dp))
-
-                TextField(
-                    value = x,
-                    onValueChange = { n -> x = n.filter { it.isDigit() } },
-                    label = { Text("Numero 1") },
-                    placeholder = { Text("Escribe el valor 1") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.padding(10.dp))
-
-                TextField(
-                    value = y,
-                    onValueChange = { nuevo -> y = nuevo.filter { it.isDigit() } },
-                    label = { Text("Numero 2") },
-                    placeholder = { Text("Escribe el valor 2") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.padding(15.dp))
-                Spacer(modifier = Modifier.padding(10.dp))
-                Text("Resultado: " + ans, fontSize = 20.sp)
-                Spacer(modifier = Modifier.padding(15.dp))
-            }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(colorTarjeta)
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Color: $texto",
+                fontSize = 18.sp,
+                color = Color.White
+            )
         }
-        item {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Button(onClick = {
-                        if (x.isNotEmpty() && y.isNotEmpty()) {
-                            ans = x.toInt() + y.toInt()
-                        }
-                    }, modifier = Modifier.weight(1f)) {
-                        Text("Suma")
-                    }
+    }
+}
 
-                    Spacer(modifier = Modifier.padding(8.dp))
+@Composable
+fun ListaColoresScreen(modifier: Modifier = Modifier) {
+    var nombreColor by rememberSaveable { mutableStateOf("") }
+    val listaColores = remember { mutableStateListOf<String>() }
 
-                    Button(onClick = {
-                        if (x.isNotEmpty() && y.isNotEmpty()) {
-                            ans = x.toInt() - y.toInt()
-                        }
-                    }, modifier = Modifier.weight(1f)) {
-                        Text("Resta")
-                    }
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        OutlinedTextField(
+            value = nombreColor,
+            onValueChange = { nombreColor = it },
+            label = { Text("Escribe un color (Morado)") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Button(
+            onClick = {
+                if (nombreColor.isNotBlank()) {
+                    listaColores.add(nombreColor)
+                    nombreColor = ""
                 }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Agregar Tarjeta de Color")
+        }
 
-                Spacer(modifier = Modifier.padding(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Button(onClick = {
-                        if (x.isNotEmpty() && y.isNotEmpty()) {
-                            ans = x.toInt() * y.toInt()
-                        }
-                    }, modifier = Modifier.weight(1f)) {
-                        Text("Multiplicacion")
-                    }
-
-                    Spacer(modifier = Modifier.padding(8.dp))
-
-                    Button(onClick = {
-                        if (x.isNotEmpty() && y.isNotEmpty() && y.toInt() != 0) {
-                            ans = x.toInt() / y.toInt()
-                        }
-                    }, modifier = Modifier.weight(1f)) {
-                        Text("Division")
-                    }
-                }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
+            items(listaColores) { colorItem ->
+                ColorCard(texto = colorItem)
             }
         }
     }
@@ -121,6 +98,8 @@ fun CalculadoraScreen(modifier: Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-fun Calculadorapreview() {
-    CalculadoraScreen(modifier = Modifier.fillMaxSize())
+fun ListaColoresScreenPreview() {
+    ESTADOSTheme {
+        ListaColoresScreen(modifier = Modifier.fillMaxSize())
+    }
 }
