@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.example.estados.Screen.CuentaScreen
+import com.example.estados.Screen.TareasScreen
 import com.example.estados.ui.theme.ESTADOSTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ESTADOSTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    CuentaScreen(
+                    TareasScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
