@@ -12,7 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.example.estados.Screen.ContadorScreen
+import com.example.estados.Screen.EtiquetaScreen
 import com.example.estados.ui.theme.ESTADOSTheme
 
 class MainActivity : ComponentActivity() {
@@ -22,11 +22,15 @@ class MainActivity : ComponentActivity() {
         setContent {
             ESTADOSTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    var x by remember { mutableStateOf(0) }
-                    ContadorScreen(
+                    var textoInput by remember { mutableStateOf("") }
+                    var textoMostrado by remember { mutableStateOf("") }
+
+                    EtiquetaScreen(
                         modifier = Modifier.padding(innerPadding),
-                        x,
-                        { x += 1 }
+                        nombreInput = textoInput,
+                        onValueChange = { nuevoTexto -> textoInput = nuevoTexto },
+                        onAddClick = { textoMostrado = textoInput },
+                        nombreMostrado = textoMostrado
                     )
                 }
             }

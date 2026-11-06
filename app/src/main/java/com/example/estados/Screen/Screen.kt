@@ -6,27 +6,62 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @Composable
-fun ContadorScreen(modifier: Modifier, numero: Int, miclick: () -> Unit) {
-    Column(modifier = modifier) {
-        Text(text = "$numero", fontSize = 80.sp)
-        Spacer(modifier = Modifier.padding(10.dp))
-        Button(onClick = {
-            miclick()
-        }) {
-            Text("Incrementar")
+fun EtiquetaScreen(
+    modifier: Modifier,
+    nombreInput: String,
+    onValueChange: (String) -> Unit,
+    onAddClick: () -> Unit,
+    nombreMostrado: String
+) {
+    Column(modifier = modifier.padding(24.dp)) {
+        OutlinedTextField(
+            value = nombreInput,
+            onValueChange = onValueChange,
+            label = { Text("Escribe tu nombre") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = onAddClick,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Agregar")
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        if (nombreMostrado.isNotEmpty()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = nombreMostrado,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            }
         }
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
-fun ContadorScreenPreview() {
-    ContadorScreen(modifier = Modifier.fillMaxSize(),
-        numero =0,
-        miclick ={}
+fun EtiquetaScreenPreview() {
+    EtiquetaScreen(
+        modifier = Modifier.fillMaxSize(),
+        nombreInput = "",
+        onValueChange = {},
+        onAddClick = {},
+        nombreMostrado = ""
     )
 }
