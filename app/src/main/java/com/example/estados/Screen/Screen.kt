@@ -116,10 +116,7 @@ fun Screen(modifier: Modifier = Modifier) {
                 shape = RoundedCornerShape(28.dp),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF6750A4))
             ) {
-                Text(
-                    text = "– Sale",
-                    fontSize = 16.sp
-                )
+                Text(text = "– Sale", fontSize = 16.sp)
             }
 
             Button(
@@ -153,15 +150,8 @@ fun Screen(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text(
-                        text = "Visitas del dia",
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = "Solo suma las entradas",
-                        color = Color.Gray,
-                        fontSize = 12.sp
-                    )
+                    Text(text = "Visitas del dia", fontWeight = FontWeight.Medium)
+                    Text(text = "Solo suma las entradas", color = Color.Gray, fontSize = 12.sp)
                 }
                 Text(
                     text = "$visitasDelDia",
@@ -184,6 +174,7 @@ fun Screen(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
+        // Botón cerrar día
         OutlinedButton(
             onClick = {
                 actuales = 0
@@ -201,7 +192,7 @@ fun Screen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun LeyendaItem(color: Color, texto: String) {
+fun LeyendaItem(color: Color, texto: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
