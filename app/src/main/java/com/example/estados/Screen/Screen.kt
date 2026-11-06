@@ -108,7 +108,6 @@ fun ControlesLectura(
             },
             valueRange = 14f..32f
         )
-
         Text(text = "Interlineado", color = textColor)
         Row(
             modifier = Modifier.fillMaxWidth(),
