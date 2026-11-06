@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 data class Producto(val nombre: String, val precio: Double)
 
 @Composable
-fun CarritoScreen(modifier : Modifier = Modifier) {
+fun CarritoScreen(modifier: Modifier = Modifier) {
     val catalogo = remember {
         listOf(
             Producto("Tortillas 1 kg", 24.00),
@@ -35,7 +35,7 @@ fun CarritoScreen(modifier : Modifier = Modifier) {
     val totalFinal = subtotalConDescuento + envio
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.SpaceBetween
@@ -53,155 +53,115 @@ fun CarritoScreen(modifier : Modifier = Modifier) {
             Spacer(modifier = Modifier.height(8.dp))
 
             catalogo.forEachIndexed { index, producto ->
-                ProductoItem(
-                    producto = producto,
-                    cantidad = cantidades[index],
-                    onCantidadChange = { nuevaCantidad ->
-                        cantidades[index] = nuevaCantidad
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(text = producto.nombre, style = MaterialTheme.typography.titleMedium)
+                        Text(text = "$${String.format("%.2f", producto.precio)} c/u", style = MaterialTheme.typography.bodySmall)
                     }
-                )
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedButton(
+                            onClick = { if (cantidades[index] > 0) cantidades[index]-- },
+                            modifier = Modifier.size(36.dp),
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text("–")
+                        }
+
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(text = "${cantidades[index]}", style = MaterialTheme.typography.titleMedium)
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        OutlinedButton(
+                            onClick = { if (cantidades[index] < 10) cantidades[index]++ },
+                            modifier = Modifier.size(36.dp),
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text("+")
+                        }
+                    }
+                }
                 Divider()
             }
         }
 
-        ResumenCarrito(
-            articulos = totalArticulos,
-            subtotal = subtotal,
-            descuento = descuento,
-            envio = envio,
-            total = totalFinal,
-            onVaciar = {
-                for (i in cantidades.indices) {
-                    cantidades[i] = 0
-                }
-            },
-            onConfirmar = {
-            }
-        )
-    }
-}
-
-@Composable
-fun ProductoItem(
-    producto: Producto,
-    cantidad: Int,
-    onCantidadChange: (Int) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(text = producto.nombre, style = MaterialTheme.typography.titleMedium)
-            Text(text = "$${String.format("%.2f", producto.precio)} c/u", style = MaterialTheme.typography.bodySmall)
-        }
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            OutlinedButton(
-                onClick = { if (cantidad > 0) onCantidadChange(cantidad - 1) },
-                modifier = Modifier.size(36.dp),
-                contentPadding = PaddingValues(0.dp)
-            ) {
-                Text("–")
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(text = "$cantidad", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.width(12.dp))
-
-            OutlinedButton(
-                onClick = { if (cantidad < 10) onCantidadChange(cantidad + 1) },
-                modifier = Modifier.size(36.dp),
-                contentPadding = PaddingValues(0.dp)
-            ) {
-                Text("+")
-            }
-        }
-    }
-}
-
-@Composable
-fun ResumenCarrito(
-    articulos: Int,
-    subtotal: Double,
-    descuento: Double,
-    envio: Double,
-    total: Double,
-    onVaciar: () -> Unit,
-    onConfirmar: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
         ) {
-            FilaResumen("Artículos", "$articulos")
-            FilaResumen("Subtotal", "$${String.format("%.2f", subtotal)}")
-
-            if (descuento > 0.0) {
-                FilaResumen("Descuento 10 %", "-$${String.format("%.2f", descuento)}", esVerde = true)
-            }
-
-            val textoEnvio = if (envio == 0.0) "GRATIS" else "$${String.format("%.2f", envio)}"
-            FilaResumen("Envio", textoEnvio, esVerde = envio == 0.0)
-
-            Divider(modifier = Modifier.padding(vertical = 4.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(text = "TOTAL", style = MaterialTheme.typography.titleLarge)
-                Text(
-                    text = "$${String.format("%.2f", total)}",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedButton(
-                    onClick = onVaciar,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Vaciar")
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(text = "Artículos", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = "$totalArticulos", style = MaterialTheme.typography.bodyMedium)
+                }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(text = "Subtotal", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = "$${String.format("%.2f", subtotal)}", style = MaterialTheme.typography.bodyMedium)
                 }
 
-                Button(
-                    onClick = onConfirmar,
-                    enabled = articulos > 0,
-                    modifier = Modifier.weight(2f)
+                if (descuento > 0.0) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(text = "Descuento 10 %", style = MaterialTheme.typography.bodyMedium)
+                        Text(text = "-$${String.format("%.2f", descuento)}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary)
+                    }
+                }
+
+                val textoEnvio = if (envio == 0.0) "GRATIS" else "$${String.format("%.2f", envio)}"
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(text = "Envio", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = textoEnvio, style = MaterialTheme.typography.bodyMedium, color = if (envio == 0.0) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurface)
+                }
+
+                Divider(modifier = Modifier.padding(vertical = 4.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Confirmar pedido")
+                    Text(text = "TOTAL", style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        text = "$${String.format("%.2f", totalFinal)}",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = {
+                            for (i in cantidades.indices) {
+                                cantidades[i] = 0
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Vaciar")
+                    }
+
+                    Button(
+                        onClick = {},
+                        enabled = totalArticulos > 0,
+                        modifier = Modifier.weight(2f)
+                    ) {
+                        Text("Confirmar pedido")
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun FilaResumen(titulo: String, valor: String, esVerde: Boolean = false) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(text = titulo, style = MaterialTheme.typography.bodyMedium)
-        Text(
-            text = valor,
-            style = MaterialTheme.typography.bodyMedium,
-            color = if (esVerde) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurface
-        )
     }
 }
 
