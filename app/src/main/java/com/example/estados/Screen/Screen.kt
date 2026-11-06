@@ -21,7 +21,6 @@ fun ContadorScreen(modifier: Modifier, numero: Int, miclick: () -> Unit) {
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun ContadorScreenPreview() {
