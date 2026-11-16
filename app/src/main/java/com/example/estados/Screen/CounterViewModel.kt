@@ -29,7 +29,6 @@ class InscripcionViewModel : ViewModel() {
 
     val talleresDisponibles = listOf("Pintura", "Fotografía", "Guitarra")
 
-    // Funciones de actualización de campos
     fun onNombreChange(nuevoNombre: String) { nombre = nuevoNombre }
     fun onCorreoChange(nuevoCorreo: String) { correo = nuevoCorreo }
     fun onEdadChange(nuevaEdad: String) { edad = nuevaEdad }
