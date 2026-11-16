@@ -47,7 +47,6 @@ fun QuizScreen(modifier: Modifier = Modifier) {
 
     Box(modifier = modifier.fillMaxSize().padding(16.dp)) {
         when (pantalla) {
-            // --- PANTALLA DE INICIO ---
             Pantalla.INICIO -> {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -77,7 +76,6 @@ fun QuizScreen(modifier: Modifier = Modifier) {
                 }
             }
 
-            // --- PANTALLA DE PREGUNTA ---
             Pantalla.QUIZ -> {
                 val preguntaActual = preguntas[indicePregunta]
                 val progreso = (indicePregunta + 1).toFloat() / preguntas.size
@@ -234,7 +232,6 @@ fun QuizScreen(modifier: Modifier = Modifier) {
                 }
             }
 
-            // --- PANTALLA DE RESULTADOS ---
             Pantalla.RESULTADO -> {
                 val mensajeCalificacion = when (puntaje) {
                     in 0..2 -> "Sigue practicando"
