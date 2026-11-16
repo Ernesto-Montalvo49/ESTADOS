@@ -9,7 +9,6 @@ import com.example.estados.ui.theme.ESTADOSTheme
 fun Screen(modifier: Modifier = Modifier) {
     CuentaScreen(modifier = modifier)
 }
-
 @Preview(showBackground = true)
 @Composable
 fun ScreenPreview() {
