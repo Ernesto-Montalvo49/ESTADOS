@@ -18,6 +18,23 @@ fun TareasScreen(
     modifier: Modifier = Modifier,
     viewModel: TareasViewModel = viewModel()
 ) {
+    val tareas by viewModel.tareas.collectAsState()
+    val textoNueva by viewModel.textoNueva.collectAsState()
+    val prioridadNueva by viewModel.prioridadNueva.collectAsState()
+    val filtroActual by viewModel.filtroActual.collectAsState()
+    val mostrarDialogo by viewModel.mostrarDialogo.collectAsState()
+
+    val tareasVisibles = when (filtroActual) {
+        Filtro.TODAS -> tareas
+        Filtro.PENDIENTES -> tareas.filter { !it.hecha }
+        Filtro.HECHAS -> tareas.filter { it.hecha }
+    }
+
+    val totalPendientes = tareas.count { !it.hecha }
+    val totalTareas = tareas.size
+    val totalCompletadas = tareas.count { it.hecha }
+    val hayCompletadas = tareas.any { it.hecha }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -38,7 +55,7 @@ fun TareasScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
-                    value = viewModel.textoNueva,
+                    value = textoNueva,
                     onValueChange = { viewModel.onTextoNuevaChange(it) },
                     label = { Text("Nueva tarea") },
                     modifier = Modifier.weight(1f),
@@ -62,7 +79,7 @@ fun TareasScreen(
                 Text(text = "Prioridad", style = MaterialTheme.typography.bodyMedium)
                 listOf(Prioridad.ALTA, Prioridad.MEDIA, Prioridad.BAJA).forEach { prio ->
                     FilterChip(
-                        selected = viewModel.prioridadNueva == prio,
+                        selected = prioridadNueva == prio,
                         onClick = { viewModel.onPrioridadNuevaChange(prio) },
                         label = { Text(prio.name.lowercase().replaceFirstChar { it.uppercase() }) }
                     )
@@ -79,7 +96,7 @@ fun TareasScreen(
                     Filtro.HECHAS to "Hechas"
                 ).forEach { (filtro, label) ->
                     FilterChip(
-                        selected = viewModel.filtroActual == filtro,
+                        selected = filtroActual == filtro,
                         onClick = { viewModel.onFiltroChange(filtro) },
                         label = { Text(label) }
                     )
@@ -94,7 +111,7 @@ fun TareasScreen(
                     .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                items(viewModel.tareasVisibles, key = { it.id }) { tarea ->
+                items(tareasVisibles, key = { it.id }) { tarea ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -149,13 +166,13 @@ fun TareasScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = viewModel.totalPendientes.toString() + " pendientes de " + viewModel.totalTareas,
+                text = totalPendientes.toString() + " pendientes de " + totalTareas,
                 style = MaterialTheme.typography.titleMedium
             )
 
             OutlinedButton(
                 onClick = { viewModel.abrirDialogoBorrar() },
-                enabled = viewModel.hayCompletadas,
+                enabled = hayCompletadas,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Borrar completadas")
@@ -163,11 +180,11 @@ fun TareasScreen(
         }
     }
 
-    if (viewModel.mostrarDialogo) {
+    if (mostrarDialogo) {
         AlertDialog(
             onDismissRequest = { viewModel.cerrarDialogoBorrar() },
             title = { Text("Eliminar tareas") },
-            text = { Text("¿Estás seguro de que deseas borrar las " + viewModel.totalCompletadas + " tareas completadas?") },
+            text = { Text("¿Estás seguro de que deseas borrar las " + totalCompletadas + " tareas completadas?") },
             confirmButton = {
                 TextButton(onClick = { viewModel.borrarCompletadas() }) {
                     Text("Confirmar")

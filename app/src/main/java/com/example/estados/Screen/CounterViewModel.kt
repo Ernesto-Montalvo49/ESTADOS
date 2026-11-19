@@ -1,10 +1,9 @@
 package com.example.estados.Screen
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 enum class Prioridad {
     ALTA, MEDIA, BAJA
@@ -22,85 +21,92 @@ data class Tarea(
 )
 
 class TareasViewModel : ViewModel() {
-    val tareas = mutableStateListOf(
-        Tarea(1, "Entregar proyecto POO", Prioridad.ALTA, false),
-        Tarea(2, "Leer capítulo 4", Prioridad.BAJA, true),
-        Tarea(3, "Taller de cálculo", Prioridad.MEDIA, false),
-        Tarea(4, "Preparar exposición", Prioridad.MEDIA, false)
+    private val _tareas = MutableStateFlow(
+        listOf(
+            Tarea(1, "Entregar proyecto POO", Prioridad.ALTA, false),
+            Tarea(2, "Leer capítulo 4", Prioridad.BAJA, true),
+            Tarea(3, "Taller de cálculo", Prioridad.MEDIA, false),
+            Tarea(4, "Preparar exposición", Prioridad.MEDIA, false)
+        )
     )
+    val tareas: StateFlow<List<Tarea>> = _tareas.asStateFlow()
 
-    var textoNueva by mutableStateOf("")
-        private set
+    private val _textoNueva = MutableStateFlow("")
+    val textoNueva: StateFlow<String> = _textoNueva.asStateFlow()
 
-    var prioridadNueva by mutableStateOf(Prioridad.ALTA)
-        private set
+    private val _prioridadNueva = MutableStateFlow(Prioridad.ALTA)
+    val prioridadNueva: StateFlow<Prioridad> = _prioridadNueva.asStateFlow()
 
-    var filtroActual by mutableStateOf(Filtro.TODAS)
-        private set
+    private val _filtroActual = MutableStateFlow(Filtro.TODAS)
+    val filtroActual: StateFlow<Filtro> = _filtroActual.asStateFlow()
 
-    var mostrarDialogo by mutableStateOf(false)
-        private set
+    private val _mostrarDialogo = MutableStateFlow(false)
+    val mostrarDialogo: StateFlow<Boolean> = _mostrarDialogo.asStateFlow()
 
     val tareasVisibles: List<Tarea>
-        get() = when (filtroActual) {
-            Filtro.TODAS -> tareas
-            Filtro.PENDIENTES -> tareas.filter { !it.hecha }
-            Filtro.HECHAS -> tareas.filter { it.hecha }
+        get() = when (_filtroActual.value) {
+            Filtro.TODAS -> _tareas.value
+            Filtro.PENDIENTES -> _tareas.value.filter { !it.hecha }
+            Filtro.HECHAS -> _tareas.value.filter { it.hecha }
         }
 
     val totalPendientes: Int
-        get() = tareas.count { !it.hecha }
+        get() = _tareas.value.count { !it.hecha }
 
     val totalTareas: Int
-        get() = tareas.size
+        get() = _tareas.value.size
 
     val totalCompletadas: Int
-        get() = tareas.count { it.hecha }
+        get() = _tareas.value.count { it.hecha }
 
     val hayCompletadas: Boolean
-        get() = tareas.any { it.hecha }
+        get() = _tareas.value.any { it.hecha }
 
     fun onTextoNuevaChange(nuevoTexto: String) {
-        textoNueva = nuevoTexto
+        _textoNueva.value = nuevoTexto
     }
 
     fun onPrioridadNuevaChange(nuevaPrioridad: Prioridad) {
-        prioridadNueva = nuevaPrioridad
+        _prioridadNueva.value = nuevaPrioridad
     }
 
     fun onFiltroChange(nuevoFiltro: Filtro) {
-        filtroActual = nuevoFiltro
+        _filtroActual.value = nuevoFiltro
     }
 
     fun agregarTarea() {
-        if (textoNueva.isNotBlank()) {
-            val nuevaId = (tareas.maxOfOrNull { it.id } ?: 0) + 1
-            tareas.add(Tarea(id = nuevaId, titulo = textoNueva.trim(), prioridad = prioridadNueva))
-            textoNueva = ""
+        val tituloLimpio = _textoNueva.value.trim()
+        if (tituloLimpio.isNotBlank()) {
+            val nuevaId = (_tareas.value.maxOfOrNull { it.id } ?: 0) + 1
+            _tareas.value = _tareas.value + Tarea(
+                id = nuevaId,
+                titulo = tituloLimpio,
+                prioridad = _prioridadNueva.value
+            )
+            _textoNueva.value = ""
         }
     }
 
     fun cambiarEstadoTarea(tarea: Tarea, hecha: Boolean) {
-        val pos = tareas.indexOfFirst { it.id == tarea.id }
-        if (pos != -1) {
-            tareas[pos] = tarea.copy(hecha = hecha)
+        _tareas.value = _tareas.value.map { actual ->
+            if (actual.id == tarea.id) actual.copy(hecha = hecha) else actual
         }
     }
 
     fun eliminarTarea(tarea: Tarea) {
-        tareas.removeAll { it.id == tarea.id }
+        _tareas.value = _tareas.value.filterNot { it.id == tarea.id }
     }
 
     fun abrirDialogoBorrar() {
-        mostrarDialogo = true
+        _mostrarDialogo.value = true
     }
 
     fun cerrarDialogoBorrar() {
-        mostrarDialogo = false
+        _mostrarDialogo.value = false
     }
 
     fun borrarCompletadas() {
-        tareas.removeAll { it.hecha }
-        mostrarDialogo = false
+        _tareas.value = _tareas.value.filterNot { it.hecha }
+        _mostrarDialogo.value = false
     }
 }
