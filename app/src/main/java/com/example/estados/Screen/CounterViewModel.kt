@@ -1,10 +1,9 @@
 package com.example.estados.Screen
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 enum class Categoria {
     COMIDA, TRANSPORTE, RENTA, OCIO, OTROS;
@@ -26,28 +25,31 @@ data class Gasto(
 )
 
 class PresupuestoViewModel : ViewModel() {
-    var ingresoTexto by mutableStateOf("4500")
-        private set
+    private val _ingresoTexto = MutableStateFlow("4500")
+    val ingresoTexto: StateFlow<String> = _ingresoTexto.asStateFlow()
 
-    val gastos = mutableStateListOf(
-        Gasto(1, "Renta mensual", 2000.0, Categoria.RENTA),
-        Gasto(2, "Despensa", 650.0, Categoria.COMIDA)
+    private val _gastos = MutableStateFlow(
+        listOf(
+            Gasto(1, "Renta mensual", 2000.0, Categoria.RENTA),
+            Gasto(2, "Despensa", 650.0, Categoria.COMIDA)
+        )
     )
+    val gastos: StateFlow<List<Gasto>> = _gastos.asStateFlow()
 
-    var conceptoNuevo by mutableStateOf("")
-        private set
+    private val _conceptoNuevo = MutableStateFlow("")
+    val conceptoNuevo: StateFlow<String> = _conceptoNuevo.asStateFlow()
 
-    var montoNuevo by mutableStateOf("")
-        private set
+    private val _montoNuevo = MutableStateFlow("")
+    val montoNuevo: StateFlow<String> = _montoNuevo.asStateFlow()
 
-    var catSeleccionada by mutableStateOf(Categoria.COMIDA)
-        private set
+    private val _catSeleccionada = MutableStateFlow(Categoria.COMIDA)
+    val catSeleccionada: StateFlow<Categoria> = _catSeleccionada.asStateFlow()
 
     val ingreso: Double
-        get() = ingresoTexto.toDoubleOrNull() ?: 0.0
+        get() = _ingresoTexto.value.toDoubleOrNull() ?: 0.0
 
     val totalGastado: Double
-        get() = gastos.sumOf { it.monto }
+        get() = _gastos.value.sumOf { it.monto }
 
     val saldoDisponible: Double
         get() = ingreso - totalGastado
@@ -63,7 +65,7 @@ class PresupuestoViewModel : ViewModel() {
 
     val infoDetalle: String
         get() {
-            val categoriaTop = gastos.groupBy { it.categoria }
+            val categoriaTop = _gastos.value.groupBy { it.categoria }
                 .mapValues { entry -> entry.value.sumOf { it.monto } }
                 .maxByOrNull { it.value }
 
@@ -76,45 +78,44 @@ class PresupuestoViewModel : ViewModel() {
 
     val formularioValido: Boolean
         get() {
-            val monto = montoNuevo.toDoubleOrNull() ?: 0.0
-            return conceptoNuevo.isNotBlank() && monto > 0.0
+            val monto = _montoNuevo.value.toDoubleOrNull() ?: 0.0
+            return _conceptoNuevo.value.isNotBlank() && monto > 0.0
         }
 
     fun onIngresoChange(nuevoIngreso: String) {
-        ingresoTexto = nuevoIngreso
+        _ingresoTexto.value = nuevoIngreso
     }
 
     fun onConceptoChange(nuevoConcepto: String) {
-        conceptoNuevo = nuevoConcepto
+        _conceptoNuevo.value = nuevoConcepto
     }
 
     fun onMontoChange(nuevoMonto: String) {
-        montoNuevo = nuevoMonto
+        _montoNuevo.value = nuevoMonto
     }
 
     fun onCategoriaChange(nuevaCategoria: Categoria) {
-        catSeleccionada = nuevaCategoria
+        _catSeleccionada.value = nuevaCategoria
     }
 
     fun agregarGasto() {
-        val monto = montoNuevo.toDoubleOrNull() ?: 0.0
+        val monto = _montoNuevo.value.toDoubleOrNull() ?: 0.0
+        val conceptoLimpio = _conceptoNuevo.value.trim()
         if (formularioValido) {
-            val nuevoId = (gastos.maxOfOrNull { it.id } ?: 0) + 1
-            gastos.add(
-                Gasto(
-                    id = nuevoId,
-                    concepto = conceptoNuevo.trim(),
-                    monto = monto,
-                    categoria = catSeleccionada
-                )
+            val nuevoId = (_gastos.value.maxOfOrNull { it.id } ?: 0) + 1
+            _gastos.value = _gastos.value + Gasto(
+                id = nuevoId,
+                concepto = conceptoLimpio,
+                monto = monto,
+                categoria = _catSeleccionada.value
             )
-            conceptoNuevo = ""
-            montoNuevo = ""
-            catSeleccionada = Categoria.COMIDA
+            _conceptoNuevo.value = ""
+            _montoNuevo.value = ""
+            _catSeleccionada.value = Categoria.COMIDA
         }
     }
 
     fun eliminarGasto(gasto: Gasto) {
-        gastos.remove(gasto)
+        _gastos.value = _gastos.value.filterNot { it.id == gasto.id }
     }
 }

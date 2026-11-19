@@ -20,6 +20,11 @@ fun PresupuestoScreen(
     modifier: Modifier = Modifier,
     viewModel: PresupuestoViewModel = viewModel()
 ) {
+    val ingresoTexto by viewModel.ingresoTexto.collectAsState()
+    val gastos by viewModel.gastos.collectAsState()
+    val conceptoNuevo by viewModel.conceptoNuevo.collectAsState()
+    val montoNuevo by viewModel.montoNuevo.collectAsState()
+    val catSeleccionada by viewModel.catSeleccionada.collectAsState()
     var menuAbierto by remember { mutableStateOf(false) }
 
     Column(
@@ -32,7 +37,7 @@ fun PresupuestoScreen(
         Text(text = "Mi presupuesto", style = MaterialTheme.typography.headlineMedium)
 
         OutlinedTextField(
-            value = viewModel.ingresoTexto,
+            value = ingresoTexto,
             onValueChange = { viewModel.onIngresoChange(it) },
             label = { Text("Ingreso mensual") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -115,7 +120,7 @@ fun PresupuestoScreen(
             ) {
                 Text(text = "Nuevo gasto", style = MaterialTheme.typography.titleMedium)
                 OutlinedTextField(
-                    value = viewModel.conceptoNuevo,
+                    value = conceptoNuevo,
                     onValueChange = { viewModel.onConceptoChange(it) },
                     label = { Text("Concepto") },
                     singleLine = true,
@@ -126,7 +131,7 @@ fun PresupuestoScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedTextField(
-                        value = viewModel.montoNuevo,
+                        value = montoNuevo,
                         onValueChange = { viewModel.onMontoChange(it) },
                         label = { Text("Monto") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -141,7 +146,7 @@ fun PresupuestoScreen(
                                 .padding(top = 4.dp)
                                 .height(56.dp)
                         ) {
-                            Text(text = viewModel.catSeleccionada.nombreBonito())
+                            Text(text = catSeleccionada.nombreBonito())
                         }
                         DropdownMenu(
                             expanded = menuAbierto,
@@ -173,7 +178,7 @@ fun PresupuestoScreen(
 
         Text(text = "Gastos recientes", style = MaterialTheme.typography.titleMedium)
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            viewModel.gastos.forEach { gasto ->
+            gastos.forEach { gasto ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
