@@ -11,11 +11,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.estados.ui.theme.ESTADOSTheme
+
 @Composable
 fun CuentaScreen(
     modifier: Modifier = Modifier,
     viewModel: CuentaViewModel = viewModel()
 ) {
+    val montoTexto by viewModel.montoTexto.collectAsState()
+    val propinaPct by viewModel.propinaPct.collectAsState()
+    val usaOtro by viewModel.usaOtro.collectAsState()
+    val sliderVal by viewModel.sliderVal.collectAsState()
+    val personas by viewModel.personas.collectAsState()
+    val redondear by viewModel.redondear.collectAsState()
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -25,7 +33,7 @@ fun CuentaScreen(
         Text(text = "Cuenta dividida", style = MaterialTheme.typography.headlineMedium)
 
         OutlinedTextField(
-            value = viewModel.montoTexto,
+            value = montoTexto,
             onValueChange = { viewModel.onMontoChange(it) },
             label = { Text("Monto de la cuenta") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -46,26 +54,26 @@ fun CuentaScreen(
             ) {
                 listOf(10, 15, 20).forEach { pct ->
                     FilterChip(
-                        selected = !viewModel.usaOtro && viewModel.propinaPct == pct,
+                        selected = !usaOtro && propinaPct == pct,
                         onClick = { viewModel.seleccionarPropinaFija(pct) },
-                        label = { Text("$pct %") }
+                        label = { Text(pct.toString() + " %") }
                     )
                 }
                 FilterChip(
-                    selected = viewModel.usaOtro,
+                    selected = usaOtro,
                     onClick = { viewModel.activarPropinaPersonalizada() },
                     label = { Text("Otro") }
                 )
             }
 
-            if (viewModel.usaOtro) {
+            if (usaOtro) {
                 Column {
                     Text(
-                        text = "Personalizada: " + viewModel.propinaPct + "%",
+                        text = "Personalizada: " + propinaPct + "%",
                         style = MaterialTheme.typography.bodySmall
                     )
                     Slider(
-                        value = viewModel.sliderVal,
+                        value = sliderVal,
                         onValueChange = { viewModel.onSliderChange(it) },
                         valueRange = 0f..30f
                     )
@@ -90,7 +98,7 @@ fun CuentaScreen(
                 }
 
                 Spacer(modifier = Modifier.width(16.dp))
-                Text(text = "${viewModel.personas}", style = MaterialTheme.typography.titleMedium)
+                Text(text = personas.toString(), style = MaterialTheme.typography.titleMedium)
                 Spacer(modifier = Modifier.width(16.dp))
 
                 OutlinedButton(
@@ -110,7 +118,7 @@ fun CuentaScreen(
         ) {
             Text(text = "Redondear por persona", style = MaterialTheme.typography.bodyLarge)
             Switch(
-                checked = viewModel.redondear,
+                checked = redondear,
                 onCheckedChange = { viewModel.onRedondearChange(it) }
             )
         }
@@ -130,7 +138,7 @@ fun CuentaScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "Propina (" + viewModel.propinaPct + " %)")
+                    Text(text = "Propina (" + propinaPct + " %)")
                     Text(text = "$" + viewModel.propina)
                 }
                 Row(
@@ -149,7 +157,7 @@ fun CuentaScreen(
                     style = MaterialTheme.typography.headlineLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Text(text = "entre " + viewModel.personas + " personas", style = MaterialTheme.typography.bodySmall)
+                Text(text = "entre " + personas + " personas", style = MaterialTheme.typography.bodySmall)
 
                 if (viewModel.sobrante != null) {
                     Text(
