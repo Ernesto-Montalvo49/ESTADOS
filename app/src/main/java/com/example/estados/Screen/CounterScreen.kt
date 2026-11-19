@@ -19,8 +19,14 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = viewModel()
 ) {
+    val email by viewModel.email.collectAsState()
+    val password by viewModel.password.collectAsState()
+    val recordarme by viewModel.recordarme.collectAsState()
+    val estadoLogin by viewModel.estadoLogin.collectAsState()
+    val mostrarPassword by viewModel.mostrarPassword.collectAsState()
+
     Box(modifier = modifier.fillMaxSize()) {
-        if (viewModel.estadoLogin == LoginEstado.EXITO) {
+        if (estadoLogin == LoginEstado.EXITO) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -31,7 +37,7 @@ fun LoginScreen(
                 Text(text = "¡Bienvenido!", style = MaterialTheme.typography.headlineLarge)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = viewModel.email,
+                    text = email,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -60,7 +66,7 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 OutlinedTextField(
-                    value = viewModel.email,
+                    value = email,
                     onValueChange = { viewModel.onEmailChange(it) },
                     label = { Text("Correo") },
                     enabled = !viewModel.bloqueado,
@@ -71,16 +77,16 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
-                    value = viewModel.password,
+                    value = password,
                     onValueChange = { viewModel.onPasswordChange(it) },
                     label = { Text("Contraseña") },
                     enabled = !viewModel.bloqueado,
                     singleLine = true,
-                    visualTransformation = if (viewModel.mostrarPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                    visualTransformation = if (mostrarPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     trailingIcon = {
                         TextButton(onClick = { viewModel.alternarMostrarPassword() }) {
-                            Text(text = if (viewModel.mostrarPassword) "Ocultar" else "Ver")
+                            Text(text = if (mostrarPassword) "Ocultar" else "Ver")
                         }
                     },
                     modifier = Modifier.fillMaxWidth()
@@ -93,7 +99,7 @@ fun LoginScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(
-                        checked = viewModel.recordarme,
+                        checked = recordarme,
                         onCheckedChange = { viewModel.onRecordarmeChange(it) },
                         enabled = !viewModel.bloqueado
                     )

@@ -1,80 +1,80 @@
 package com.example.estados.Screen
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 enum class LoginEstado {
     INACTIVO, ERROR, BLOQUEADO, EXITO
 }
 
 class LoginViewModel : ViewModel() {
-    var email by mutableStateOf("")
-        private set
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email.asStateFlow()
 
-    var password by mutableStateOf("")
-        private set
+    private val _password = MutableStateFlow("")
+    val password: StateFlow<String> = _password.asStateFlow()
 
-    var recordarme by mutableStateOf(false)
-        private set
+    private val _recordarme = MutableStateFlow(false)
+    val recordarme: StateFlow<Boolean> = _recordarme.asStateFlow()
 
-    var intentosFallidos by mutableStateOf(0)
-        private set
+    private val _intentosFallidos = MutableStateFlow(0)
+    val intentosFallidos: StateFlow<Int> = _intentosFallidos.asStateFlow()
 
-    var estadoLogin by mutableStateOf(LoginEstado.INACTIVO)
-        private set
+    private val _estadoLogin = MutableStateFlow(LoginEstado.INACTIVO)
+    val estadoLogin: StateFlow<LoginEstado> = _estadoLogin.asStateFlow()
 
-    var mostrarPassword by mutableStateOf(false)
-        private set
+    private val _mostrarPassword = MutableStateFlow(false)
+    val mostrarPassword: StateFlow<Boolean> = _mostrarPassword.asStateFlow()
 
     val bloqueado: Boolean
-        get() = estadoLogin == LoginEstado.BLOQUEADO
+        get() = _estadoLogin.value == LoginEstado.BLOQUEADO
 
     val mensajeError: String?
-        get() = when (estadoLogin) {
-            LoginEstado.ERROR -> "Correo o contraseña incorrectos\n(intento " + intentosFallidos + " de 3)"
+        get() = when (_estadoLogin.value) {
+            LoginEstado.ERROR -> "Correo o contraseña incorrectos\n(intento " + _intentosFallidos.value + " de 3)"
             LoginEstado.BLOQUEADO -> "Cuenta Bloqueada"
             else -> null
         }
 
     val botonHabilitado: Boolean
-        get() = !bloqueado && email.isNotBlank() && password.isNotBlank()
+        get() = !bloqueado && _email.value.isNotBlank() && _password.value.isNotBlank()
 
     fun onEmailChange(nuevoEmail: String) {
-        email = nuevoEmail
+        _email.value = nuevoEmail
     }
 
     fun onPasswordChange(nuevaPassword: String) {
-        password = nuevaPassword
+        _password.value = nuevaPassword
     }
 
     fun onRecordarmeChange(valor: Boolean) {
-        recordarme = valor
+        _recordarme.value = valor
     }
 
     fun alternarMostrarPassword() {
-        mostrarPassword = !mostrarPassword
+        _mostrarPassword.value = !_mostrarPassword.value
     }
 
     fun iniciarSesion() {
-        if (email == "paciente@vida.mx" && password == "Vida2025") {
-            estadoLogin = LoginEstado.EXITO
-            intentosFallidos = 0
+        if (_email.value == "paciente@vida.mx" && _password.value == "Vida2025") {
+            _estadoLogin.value = LoginEstado.EXITO
+            _intentosFallidos.value = 0
         } else {
-            intentosFallidos++
-            if (intentosFallidos >= 3) {
-                estadoLogin = LoginEstado.BLOQUEADO
+            _intentosFallidos.value++
+            if (_intentosFallidos.value >= 3) {
+                _estadoLogin.value = LoginEstado.BLOQUEADO
             } else {
-                estadoLogin = LoginEstado.ERROR
+                _estadoLogin.value = LoginEstado.ERROR
             }
         }
     }
 
     fun cerrarSesion() {
-        email = ""
-        password = ""
-        intentosFallidos = 0
-        estadoLogin = LoginEstado.INACTIVO
+        _email.value = ""
+        _password.value = ""
+        _intentosFallidos.value = 0
+        _estadoLogin.value = LoginEstado.INACTIVO
     }
 }
