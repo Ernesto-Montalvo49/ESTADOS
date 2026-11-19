@@ -17,6 +17,13 @@ fun ResenaScreen(
     modifier: Modifier = Modifier,
     viewModel: ResenaViewModel = viewModel()
 ) {
+    val comida by viewModel.comida.collectAsState()
+    val servicio by viewModel.servicio.collectAsState()
+    val ambiente by viewModel.ambiente.collectAsState()
+    val comentario by viewModel.comentario.collectAsState()
+    val etiquetas by viewModel.etiquetas.collectAsState()
+    val publicada by viewModel.publicada.collectAsState()
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -26,7 +33,7 @@ fun ResenaScreen(
     ) {
         Text(text = "Escribe tu reseña", style = MaterialTheme.typography.headlineMedium)
 
-        if (!viewModel.publicada) {
+        if (!publicada) {
             Text(text = "Restaurante El Mezquite", style = MaterialTheme.typography.titleLarge)
             Text(
                 text = "Califica tu experiencia",
@@ -36,22 +43,22 @@ fun ResenaScreen(
 
             FilaCalificacion(
                 titulo = "Comida",
-                valor = viewModel.comida,
-                descripcion = viewModel.obtenerDescripcion(viewModel.comida),
+                valor = comida,
+                descripcion = viewModel.obtenerDescripcion(comida),
                 onSeleccionar = { viewModel.onComidaChange(it) }
             )
 
             FilaCalificacion(
                 titulo = "Servicio",
-                valor = viewModel.servicio,
-                descripcion = viewModel.obtenerDescripcion(viewModel.servicio),
+                valor = servicio,
+                descripcion = viewModel.obtenerDescripcion(servicio),
                 onSeleccionar = { viewModel.onServicioChange(it) }
             )
 
             FilaCalificacion(
                 titulo = "Ambiente",
-                valor = viewModel.ambiente,
-                descripcion = viewModel.obtenerDescripcion(viewModel.ambiente),
+                valor = ambiente,
+                descripcion = viewModel.obtenerDescripcion(ambiente),
                 onSeleccionar = { viewModel.onAmbienteChange(it) }
             )
 
@@ -76,7 +83,7 @@ fun ResenaScreen(
             }
 
             OutlinedTextField(
-                value = viewModel.comentario,
+                value = comentario,
                 onValueChange = { viewModel.onComentarioChange(it) },
                 label = { Text("Comentario (mínimo 20 caracteres)") },
                 modifier = Modifier
@@ -85,7 +92,7 @@ fun ResenaScreen(
                 maxLines = 5
             )
             Text(
-                text = viewModel.comentario.length.toString() + "/200",
+                text = comentario.length.toString() + "/200",
                 style = MaterialTheme.typography.bodySmall
             )
 
@@ -95,7 +102,7 @@ fun ResenaScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 viewModel.listaEtiquetas.forEach { etiqueta ->
-                    val seleccionada = etiqueta in viewModel.etiquetas
+                    val seleccionada = etiqueta in etiquetas
                     FilterChip(
                         selected = seleccionada,
                         onClick = { viewModel.alternarEtiqueta(etiqueta) },
@@ -125,9 +132,9 @@ fun ResenaScreen(
                 ) {
                     Text(text = "¡Se publicó la reseña!", style = MaterialTheme.typography.titleLarge)
                     Text(text = "Calificación general: " + viewModel.calificacionGeneral)
-                    Text(text = "Comentario: \"" + viewModel.comentario + "\"")
+                    Text(text = "Comentario: \"" + comentario + "\"")
                     Text(
-                        text = "Etiquetas: " + if (viewModel.etiquetas.isEmpty()) "Ninguna" else viewModel.etiquetas.joinToString(", ")
+                        text = "Etiquetas: " + if (etiquetas.isEmpty()) "Ninguna" else etiquetas.joinToString(", ")
                     )
 
                     Button(
