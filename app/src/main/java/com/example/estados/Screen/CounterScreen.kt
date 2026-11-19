@@ -15,25 +15,51 @@ fun InscripcionScreen(
     modifier: Modifier = Modifier,
     viewModel: InscripcionViewModel = viewModel()
 ) {
-    if (viewModel.inscrito) {
+    val nombre by viewModel.nombre.collectAsState()
+    val correo by viewModel.correo.collectAsState()
+    val edad by viewModel.edad.collectAsState()
+    val taller by viewModel.taller.collectAsState()
+    val aceptaAviso by viewModel.aceptaAviso.collectAsState()
+    val intentoEnviar by viewModel.intentoEnviar.collectAsState()
+    val inscrito by viewModel.inscrito.collectAsState()
+
+    if (inscrito) {
         ConfirmacionScreen(
-            nombre = viewModel.nombre,
-            correo = viewModel.correo,
-            taller = viewModel.taller,
+            nombre = nombre,
+            correo = correo,
+            taller = taller,
             onNueva = { viewModel.reiniciarInscripcion() }
         )
     } else {
-        InscripcionForm(viewModel = viewModel)
+        InscripcionForm(
+            modifier = modifier,
+            viewModel = viewModel,
+            nombre = nombre,
+            correo = correo,
+            edad = edad,
+            taller = taller,
+            aceptaAviso = aceptaAviso,
+            intentoEnviar = intentoEnviar
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InscripcionForm(viewModel: InscripcionViewModel) {
+fun InscripcionForm(
+    modifier: Modifier = Modifier,
+    viewModel: InscripcionViewModel,
+    nombre: String,
+    correo: String,
+    edad: String,
+    taller: String,
+    aceptaAviso: Boolean,
+    intentoEnviar: Boolean
+) {
     var expanded by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -43,26 +69,26 @@ fun InscripcionForm(viewModel: InscripcionViewModel) {
 
         CampoTexto(
             label = "Nombre completo",
-            value = viewModel.nombre,
+            value = nombre,
             onValueChange = { viewModel.onNombreChange(it) },
             error = viewModel.errorNombre,
-            intentoEnviar = viewModel.intentoEnviar
+            intentoEnviar = intentoEnviar
         )
 
         CampoTexto(
             label = "Correo",
-            value = viewModel.correo,
+            value = correo,
             onValueChange = { viewModel.onCorreoChange(it) },
             error = viewModel.errorCorreo,
-            intentoEnviar = viewModel.intentoEnviar
+            intentoEnviar = intentoEnviar
         )
 
         CampoTexto(
             label = "Edad",
-            value = viewModel.edad,
+            value = edad,
             onValueChange = { viewModel.onEdadChange(it) },
             error = viewModel.errorEdad,
-            intentoEnviar = viewModel.intentoEnviar
+            intentoEnviar = intentoEnviar
         )
 
         ExposedDropdownMenuBox(
@@ -70,7 +96,7 @@ fun InscripcionForm(viewModel: InscripcionViewModel) {
             onExpandedChange = { expanded = !expanded }
         ) {
             OutlinedTextField(
-                value = viewModel.taller,
+                value = taller,
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Taller") },
@@ -100,7 +126,7 @@ fun InscripcionForm(viewModel: InscripcionViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
-                checked = viewModel.aceptaAviso,
+                checked = aceptaAviso,
                 onCheckedChange = { viewModel.onAvisoChange(it) }
             )
             Text(text = "Acepto el aviso de privacidad")
@@ -162,9 +188,9 @@ fun ConfirmacionScreen(
     ) {
         Text(text = "Inscrito", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Nombre: $nombre", style = MaterialTheme.typography.bodyLarge)
-        Text(text = "Correo: $correo", style = MaterialTheme.typography.bodyLarge)
-        Text(text = "Taller: $taller", style = MaterialTheme.typography.bodyLarge)
+        Text(text = "Nombre: " + nombre, style = MaterialTheme.typography.bodyLarge)
+        Text(text = "Correo: " + correo, style = MaterialTheme.typography.bodyLarge)
+        Text(text = "Taller: " + taller, style = MaterialTheme.typography.bodyLarge)
         Spacer(modifier = Modifier.height(24.dp))
         Button(onClick = onNueva) {
             Text("Nueva inscripción")

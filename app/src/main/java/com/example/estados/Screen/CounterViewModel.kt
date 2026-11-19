@@ -1,49 +1,63 @@
 package com.example.estados.Screen
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class InscripcionViewModel : ViewModel() {
-    var nombre by mutableStateOf("")
-        private set
+    private val _nombre = MutableStateFlow("")
+    val nombre: StateFlow<String> = _nombre.asStateFlow()
 
-    var correo by mutableStateOf("")
-        private set
+    private val _correo = MutableStateFlow("")
+    val correo: StateFlow<String> = _correo.asStateFlow()
 
-    var edad by mutableStateOf("")
-        private set
+    private val _edad = MutableStateFlow("")
+    val edad: StateFlow<String> = _edad.asStateFlow()
 
-    var taller by mutableStateOf("Pintura")
-        private set
+    private val _taller = MutableStateFlow("Pintura")
+    val taller: StateFlow<String> = _taller.asStateFlow()
 
-    var aceptaAviso by mutableStateOf(false)
-        private set
+    private val _aceptaAviso = MutableStateFlow(false)
+    val aceptaAviso: StateFlow<Boolean> = _aceptaAviso.asStateFlow()
 
-    var intentoEnviar by mutableStateOf(false)
-        private set
+    private val _intentoEnviar = MutableStateFlow(false)
+    val intentoEnviar: StateFlow<Boolean> = _intentoEnviar.asStateFlow()
 
-    var inscrito by mutableStateOf(false)
-        private set
+    private val _inscrito = MutableStateFlow(false)
+    val inscrito: StateFlow<Boolean> = _inscrito.asStateFlow()
 
     val talleresDisponibles = listOf("Pintura", "Fotografía", "Guitarra")
 
-    fun onNombreChange(nuevoNombre: String) { nombre = nuevoNombre }
-    fun onCorreoChange(nuevoCorreo: String) { correo = nuevoCorreo }
-    fun onEdadChange(nuevaEdad: String) { edad = nuevaEdad }
-    fun onTallerChange(nuevoTaller: String) { taller = nuevoTaller }
-    fun onAvisoChange(acepta: Boolean) { aceptaAviso = acepta }
+    fun onNombreChange(nuevoNombre: String) {
+        _nombre.value = nuevoNombre
+    }
+
+    fun onCorreoChange(nuevoCorreo: String) {
+        _correo.value = nuevoCorreo
+    }
+
+    fun onEdadChange(nuevaEdad: String) {
+        _edad.value = nuevaEdad
+    }
+
+    fun onTallerChange(nuevoTaller: String) {
+        _taller.value = nuevoTaller
+    }
+
+    fun onAvisoChange(acepta: Boolean) {
+        _aceptaAviso.value = acepta
+    }
 
     val errorNombre: String?
-        get() = if (nombre.length < 3) "El nombre debe tener al menos 3 caracteres" else null
+        get() = if (_nombre.value.length < 3) "El nombre debe tener al menos 3 caracteres" else null
 
     val errorCorreo: String?
-        get() = if (!correo.contains("@") || !correo.contains(".")) "Ingresa un correo valido" else null
+        get() = if (!_correo.value.contains("@") || !_correo.value.contains(".")) "Ingresa un correo valido" else null
 
     val errorEdad: String?
         get() {
-            val valor = edad.toIntOrNull()
+            val valor = _edad.value.toIntOrNull()
             return when {
                 valor == null -> "Ingresa solo numeros"
                 valor < 12 || valor > 99 -> "La edad debe estar entre 12 y 99"
@@ -52,19 +66,19 @@ class InscripcionViewModel : ViewModel() {
         }
 
     fun intentarInscribir() {
-        intentoEnviar = true
-        if (errorNombre == null && errorCorreo == null && errorEdad == null && aceptaAviso) {
-            inscrito = true
+        _intentoEnviar.value = true
+        if (errorNombre == null && errorCorreo == null && errorEdad == null && _aceptaAviso.value) {
+            _inscrito.value = true
         }
     }
 
     fun reiniciarInscripcion() {
-        nombre = ""
-        correo = ""
-        edad = ""
-        taller = "Pintura"
-        aceptaAviso = false
-        intentoEnviar = false
-        inscrito = false
+        _nombre.value = ""
+        _correo.value = ""
+        _edad.value = ""
+        _taller.value = "Pintura"
+        _aceptaAviso.value = false
+        _intentoEnviar.value = false
+        _inscrito.value = false
     }
 }
