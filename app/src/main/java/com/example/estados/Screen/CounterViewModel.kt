@@ -1,9 +1,9 @@
 package com.example.estados.Screen
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 enum class Interlineado(val factor: Float) {
     COMPACTO(1.0f),
@@ -20,30 +20,30 @@ data class AjustesLectura(
 )
 
 class LecturaViewModel : ViewModel() {
-    var ajustes by mutableStateOf(AjustesLectura())
-        private set
+    private val _ajustes = MutableStateFlow(AjustesLectura())
+    val ajustes: StateFlow<AjustesLectura> = _ajustes.asStateFlow()
 
     fun actualizarTamano(nuevoTamano: Float) {
-        ajustes = ajustes.copy(tamano = nuevoTamano)
+        _ajustes.value = _ajustes.value.copy(tamano = nuevoTamano)
     }
 
     fun actualizarInterlineado(nuevoInterlineado: Interlineado) {
-        ajustes = ajustes.copy(interlineado = nuevoInterlineado)
+        _ajustes.value = _ajustes.value.copy(interlineado = nuevoInterlineado)
     }
 
     fun actualizarModoOscuro(activo: Boolean) {
-        ajustes = ajustes.copy(modoOscuro = activo)
+        _ajustes.value = _ajustes.value.copy(modoOscuro = activo)
     }
 
     fun actualizarFuente(usaSerif: Boolean) {
-        ajustes = ajustes.copy(usaSerif = usaSerif)
+        _ajustes.value = _ajustes.value.copy(usaSerif = usaSerif)
     }
 
     fun actualizarTexto(nuevoTexto: String) {
-        ajustes = ajustes.copy(textoPersonalizado = nuevoTexto)
+        _ajustes.value = _ajustes.value.copy(textoPersonalizado = nuevoTexto)
     }
 
     fun restablecerValores() {
-        ajustes = AjustesLectura()
+        _ajustes.value = AjustesLectura()
     }
 }

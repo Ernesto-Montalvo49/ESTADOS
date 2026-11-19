@@ -23,7 +23,7 @@ fun LecturaScreen(
     modifier: Modifier = Modifier,
     viewModel: LecturaViewModel = viewModel()
 ) {
-    val ajustes = viewModel.ajustes
+    val ajustes by viewModel.ajustes.collectAsState()
 
     val backgroundColor = if (ajustes.modoOscuro) Color.Black else Color.White
     val textColor = if (ajustes.modoOscuro) Color.White else Color.Black
@@ -85,7 +85,7 @@ fun ControlesLectura(
         ) {
             Text(text = "Tamaño de letra", color = textColor)
             Text(
-                text = "${ajustes.tamano.toInt()} sp",
+                text = ajustes.tamano.toInt().toString() + " sp",
                 color = Color(0xFF6750A4),
                 fontWeight = FontWeight.Bold
             )
@@ -157,8 +157,6 @@ fun VistaPrevia(
     ajustes: AjustesLectura,
     onTextChange: (String) -> Unit
 ) {
-    val cajaBg = if (ajustes.modoOscuro) Color(0xFF2B2930) else Color(0xFFE6E0E9)
-    val colorTextoCaja = if (ajustes.modoOscuro) Color.White else Color.Black
     val fuenteElegida = if (ajustes.usaSerif) FontFamily.Serif else FontFamily.SansSerif
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -171,12 +169,10 @@ fun VistaPrevia(
             shape = RoundedCornerShape(12.dp),
             textStyle = TextStyle(
                 fontSize = ajustes.tamano.sp,
-                color = colorTextoCaja,
                 fontFamily = fuenteElegida,
                 lineHeight = (ajustes.tamano * ajustes.interlineado.factor).sp
             )
-
-            )
+        )
     }
 }
 
