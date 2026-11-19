@@ -7,7 +7,7 @@ import com.example.estados.ui.theme.ESTADOSTheme
 
 @Composable
 fun Screen(modifier: Modifier = Modifier) {
-    CounterScreen(modifier = modifier)
+    AforoScreen(modifier = modifier)
 }
 
 @Preview(showBackground = true)
