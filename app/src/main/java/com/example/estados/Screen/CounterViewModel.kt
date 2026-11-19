@@ -1,9 +1,9 @@
 package com.example.estados.Screen
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 enum class Pantalla {
     INICIO, QUIZ, RESULTADO
@@ -20,23 +20,23 @@ data class Pregunta(
 )
 
 class QuizViewModel : ViewModel() {
-    var pantalla by mutableStateOf(Pantalla.INICIO)
-        private set
+    private val _pantalla = MutableStateFlow(Pantalla.INICIO)
+    val pantalla: StateFlow<Pantalla> = _pantalla.asStateFlow()
 
-    var nombre by mutableStateOf("")
-        private set
+    private val _nombre = MutableStateFlow("")
+    val nombre: StateFlow<String> = _nombre.asStateFlow()
 
-    var indicePregunta by mutableStateOf(0)
-        private set
+    private val _indicePregunta = MutableStateFlow(0)
+    val indicePregunta: StateFlow<Int> = _indicePregunta.asStateFlow()
 
-    var opcionSeleccionada by mutableStateOf<Opcion?>(null)
-        private set
+    private val _opcionSeleccionada = MutableStateFlow<Opcion?>(null)
+    val opcionSeleccionada: StateFlow<Opcion?> = _opcionSeleccionada.asStateFlow()
 
-    var respondida by mutableStateOf(false)
-        private set
+    private val _respondida = MutableStateFlow(false)
+    val respondida: StateFlow<Boolean> = _respondida.asStateFlow()
 
-    var puntaje by mutableStateOf(0)
-        private set
+    private val _puntaje = MutableStateFlow(0)
+    val puntaje: StateFlow<Int> = _puntaje.asStateFlow()
 
     val preguntas = listOf(
         Pregunta(
@@ -62,16 +62,16 @@ class QuizViewModel : ViewModel() {
     )
 
     val preguntaActual: Pregunta
-        get() = preguntas[indicePregunta]
+        get() = preguntas[_indicePregunta.value]
 
     val progreso: Float
-        get() = (indicePregunta + 1).toFloat() / preguntas.size
+        get() = (_indicePregunta.value + 1).toFloat() / preguntas.size
 
     val esUltimaPregunta: Boolean
-        get() = indicePregunta == preguntas.size - 1
+        get() = _indicePregunta.value == preguntas.size - 1
 
     val mensajeCalificacion: String
-        get() = when (puntaje) {
+        get() = when (_puntaje.value) {
             in 0..2 -> "Sigue practicando"
             in 3..4 -> "Buen trabajo"
             else -> "Perfecto"
@@ -81,55 +81,55 @@ class QuizViewModel : ViewModel() {
         get() = preguntaActual.opciones.find { it.esCorrecta }?.texto ?: ""
 
     fun onNombreChange(nuevoNombre: String) {
-        nombre = nuevoNombre
+        _nombre.value = nuevoNombre
     }
 
     fun iniciarQuiz() {
-        if (nombre.trim().length >= 2) {
-            pantalla = Pantalla.QUIZ
+        if (_nombre.value.trim().length >= 2) {
+            _pantalla.value = Pantalla.QUIZ
         }
     }
 
     fun seleccionarOpcion(opcion: Opcion) {
-        if (!respondida) {
-            opcionSeleccionada = opcion
+        if (!_respondida.value) {
+            _opcionSeleccionada.value = opcion
         }
     }
 
     fun confirmarRespuesta() {
-        val seleccion = opcionSeleccionada
-        if (seleccion != null && !respondida) {
-            respondida = true
+        val seleccion = _opcionSeleccionada.value
+        if (seleccion != null && !_respondida.value) {
+            _respondida.value = true
             if (seleccion.esCorrecta) {
-                puntaje++
+                _puntaje.value++
             }
         }
     }
 
     fun siguientePregunta() {
         if (!esUltimaPregunta) {
-            indicePregunta++
-            opcionSeleccionada = null
-            respondida = false
+            _indicePregunta.value++
+            _opcionSeleccionada.value = null
+            _respondida.value = false
         } else {
-            pantalla = Pantalla.RESULTADO
+            _pantalla.value = Pantalla.RESULTADO
         }
     }
 
     fun reintentar() {
-        indicePregunta = 0
-        puntaje = 0
-        opcionSeleccionada = null
-        respondida = false
-        pantalla = Pantalla.QUIZ
+        _indicePregunta.value = 0
+        _puntaje.value = 0
+        _opcionSeleccionada.value = null
+        _respondida.value = false
+        _pantalla.value = Pantalla.QUIZ
     }
 
     fun cambiarJugador() {
-        nombre = ""
-        indicePregunta = 0
-        puntaje = 0
-        opcionSeleccionada = null
-        respondida = false
-        pantalla = Pantalla.INICIO
+        _nombre.value = ""
+        _indicePregunta.value = 0
+        _puntaje.value = 0
+        _opcionSeleccionada.value = null
+        _respondida.value = false
+        _pantalla.value = Pantalla.INICIO
     }
 }

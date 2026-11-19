@@ -22,8 +22,15 @@ fun QuizScreen(
     modifier: Modifier = Modifier,
     viewModel: QuizViewModel = viewModel()
 ) {
+    val pantalla by viewModel.pantalla.collectAsState()
+    val nombre by viewModel.nombre.collectAsState()
+    val indicePregunta by viewModel.indicePregunta.collectAsState()
+    val opcionSeleccionada by viewModel.opcionSeleccionada.collectAsState()
+    val respondida by viewModel.respondida.collectAsState()
+    val puntaje by viewModel.puntaje.collectAsState()
+
     Box(modifier = modifier.fillMaxSize().padding(16.dp)) {
-        when (viewModel.pantalla) {
+        when (pantalla) {
             Pantalla.INICIO -> {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -38,7 +45,7 @@ fun QuizScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     OutlinedTextField(
-                        value = viewModel.nombre,
+                        value = nombre,
                         onValueChange = { viewModel.onNombreChange(it) },
                         label = { Text("Nombre del alumno") },
                         singleLine = true,
@@ -49,7 +56,7 @@ fun QuizScreen(
 
                     Button(
                         onClick = { viewModel.iniciarQuiz() },
-                        enabled = viewModel.nombre.trim().length >= 2,
+                        enabled = nombre.trim().length >= 2,
                         modifier = Modifier.fillMaxWidth().height(50.dp)
                     ) {
                         Text(text = "Comenzar")
@@ -73,11 +80,11 @@ fun QuizScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "Pregunta " + (viewModel.indicePregunta + 1) + " de " + viewModel.preguntas.size,
+                            text = "Pregunta " + (indicePregunta + 1) + " de " + viewModel.preguntas.size,
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
-                            text = "Puntaje: " + viewModel.puntaje,
+                            text = "Puntaje: " + puntaje,
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -99,18 +106,18 @@ fun QuizScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     preguntaActual.opciones.forEach { opcion ->
-                        val esSeleccionada = viewModel.opcionSeleccionada == opcion
+                        val esSeleccionada = opcionSeleccionada == opcion
                         val esCorrecta = opcion.esCorrecta
 
                         val colorBorde = when {
-                            viewModel.respondida && esCorrecta -> Color(0xFF2E7D32)
-                            viewModel.respondida && esSeleccionada && !esCorrecta -> Color(0xFFC62828)
+                            respondida && esCorrecta -> Color(0xFF2E7D32)
+                            respondida && esSeleccionada && !esCorrecta -> Color(0xFFC62828)
                             else -> MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
                         }
 
                         val colorFondo = when {
-                            viewModel.respondida && esCorrecta -> Color(0xFF2E7D32).copy(alpha = 0.1f)
-                            viewModel.respondida && esSeleccionada && !esCorrecta -> Color(0xFFC62828).copy(alpha = 0.1f)
+                            respondida && esCorrecta -> Color(0xFF2E7D32).copy(alpha = 0.1f)
+                            respondida && esSeleccionada && !esCorrecta -> Color(0xFFC62828).copy(alpha = 0.1f)
                             else -> Color.Transparent
                         }
 
@@ -138,7 +145,7 @@ fun QuizScreen(
                                     Text(text = opcion.texto, style = MaterialTheme.typography.bodyLarge)
                                 }
 
-                                if (viewModel.respondida) {
+                                if (respondida) {
                                     if (esCorrecta) {
                                         Text(
                                             text = "✓",
@@ -159,8 +166,8 @@ fun QuizScreen(
                         }
                     }
 
-                    if (viewModel.respondida) {
-                        val acerto = viewModel.opcionSeleccionada?.esCorrecta == true
+                    if (respondida) {
+                        val acerto = opcionSeleccionada?.esCorrecta == true
                         val mensajeRetro = if (acerto) {
                             "¡Correcto!"
                         } else {
@@ -189,7 +196,7 @@ fun QuizScreen(
                     ) {
                         OutlinedButton(
                             onClick = { viewModel.confirmarRespuesta() },
-                            enabled = viewModel.opcionSeleccionada != null && !viewModel.respondida,
+                            enabled = opcionSeleccionada != null && !respondida,
                             modifier = Modifier.weight(1f).height(50.dp)
                         ) {
                             Text("Confirmar")
@@ -197,7 +204,7 @@ fun QuizScreen(
 
                         Button(
                             onClick = { viewModel.siguientePregunta() },
-                            enabled = viewModel.respondida,
+                            enabled = respondida,
                             modifier = Modifier.weight(1f).height(50.dp)
                         ) {
                             Text(if (viewModel.esUltimaPregunta) "Ver resultados" else "Siguiente")
@@ -213,13 +220,13 @@ fun QuizScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "¡Muy bien, " + viewModel.nombre.trim() + "!",
+                        text = "¡Muy bien, " + nombre.trim() + "!",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = viewModel.puntaje.toString() + " de " + viewModel.preguntas.size,
+                        text = puntaje.toString() + " de " + viewModel.preguntas.size,
                         style = MaterialTheme.typography.displayMedium,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
