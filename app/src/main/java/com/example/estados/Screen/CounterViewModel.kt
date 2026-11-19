@@ -1,7 +1,9 @@
 package com.example.estados.Screen
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 data class Producto(
     val nombre: String,
@@ -10,18 +12,21 @@ data class Producto(
 )
 
 class CarritoViewModel : ViewModel() {
-    val productos = mutableStateListOf(
-        Producto("Tortillas 1 kg", 24.00),
-        Producto("Leche 1 L", 27.50),
-        Producto("Huevo 12 pz", 52.00),
-        Producto("Frijol 1 kg", 38.00)
+    private val _productos = MutableStateFlow(
+        listOf(
+            Producto("Tortillas 1 kg", 24.00),
+            Producto("Leche 1 L", 27.50),
+            Producto("Huevo 12 pz", 52.00),
+            Producto("Frijol 1 kg", 38.00)
+        )
     )
+    val productos: StateFlow<List<Producto>> = _productos.asStateFlow()
 
     val totalArticulos: Int
-        get() = productos.sumOf { it.cantidad }
+        get() = _productos.value.sumOf { it.cantidad }
 
     val subtotal: Double
-        get() = productos.sumOf { it.precio * it.cantidad }
+        get() = _productos.value.sumOf { it.precio * it.cantidad }
 
     val descuento: Double
         get() = if (subtotal >= 200.0) subtotal * 0.10 else 0.0
@@ -41,23 +46,21 @@ class CarritoViewModel : ViewModel() {
 
     fun incrementar(producto: Producto) {
         if (producto.cantidad < 10) {
-            val pos = productos.indexOf(producto)
-            if (pos != -1) {
-                productos[pos] = producto.copy(cantidad = producto.cantidad + 1)
+            _productos.value = _productos.value.map { actual ->
+                if (actual == producto) actual.copy(cantidad = actual.cantidad + 1) else actual
             }
         }
     }
 
     fun decrementar(producto: Producto) {
         if (producto.cantidad > 0) {
-            val pos = productos.indexOf(producto)
-            if (pos != -1) {
-                productos[pos] = producto.copy(cantidad = producto.cantidad - 1)
+            _productos.value = _productos.value.map { actual ->
+                if (actual == producto) actual.copy(cantidad = actual.cantidad - 1) else actual
             }
         }
     }
 
     fun vaciarCarrito() {
-        productos.replaceAll { it.copy(cantidad = 0) }
+        _productos.value = _productos.value.map { it.copy(cantidad = 0) }
     }
 }

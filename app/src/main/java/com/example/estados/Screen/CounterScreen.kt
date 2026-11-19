@@ -15,6 +15,8 @@ fun CarritoScreen(
     modifier: Modifier = Modifier,
     viewModel: CarritoViewModel = viewModel()
 ) {
+    val productos by viewModel.productos.collectAsState()
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -28,12 +30,12 @@ fun CarritoScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Tienda Don Pepe", style = MaterialTheme.typography.headlineMedium)
-                Badge { Text("${viewModel.totalArticulos}") }
+                Badge { Text(viewModel.totalArticulos.toString()) }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            viewModel.productos.forEach { producto ->
+            productos.forEach { producto ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -59,7 +61,7 @@ fun CarritoScreen(
                         }
 
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text(text = "${producto.cantidad}", style = MaterialTheme.typography.titleMedium)
+                        Text(text = producto.cantidad.toString(), style = MaterialTheme.typography.titleMedium)
                         Spacer(modifier = Modifier.width(12.dp))
 
                         OutlinedButton(
@@ -85,7 +87,7 @@ fun CarritoScreen(
             ) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(text = "Artículos", style = MaterialTheme.typography.bodyMedium)
-                    Text(text = "${viewModel.totalArticulos}", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = viewModel.totalArticulos.toString(), style = MaterialTheme.typography.bodyMedium)
                 }
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(text = "Subtotal", style = MaterialTheme.typography.bodyMedium)
